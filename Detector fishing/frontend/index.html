@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detector de Phishing</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Detector de Phishing</h1>
+            <p class="subtitle">Analiza URLs sospechosas con la API de VirusTotal</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="input-section">
+                <label for="url-input">URL a analizar:</label>
+                <div class="input-group">
+                    <input type="text" id="url-input" placeholder="https://ejemplo.com">
+                    <button id="analyze-btn">Analizar</button>
+                </div>
+            </div>
+            
+            <div class="result-section" id="result-section">
+                <div class="result-placeholder">
+                    <p>Los resultados aparecerán aquí...</p>
+                </div>
+            </div>
+            
+            <div class="examples-section">
+                <h3>Ejemplos para probar:</h3>
+                <ul class="examples-list">
+                    <li><a href="#" class="example-link" data-url="https://www.google.com">URL legítima: https://www.google.com</a></li>
+                    <li><a href="#" class="example-link" data-url="http://faceb00k-login.verify-security.com">URL de phishing: http://faceb00k-login.verify-security.com</a></li>
+                    <li><a href="#" class="example-link" data-url="http://paypal.com.security-update.xyz">URL sospechosa: http://paypal.com.security-update.xyz</a></li>
+                    <li><a href="#" class="example-link" data-url="http://amazon-account-update.secure-verify.com">URL maliciosa: http://amazon-account-update.secure-verify.com</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Usando la API de VirusTotal</p>
+        </footer>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
