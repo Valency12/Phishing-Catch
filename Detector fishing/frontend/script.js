@@ -1,106 +1,127 @@
-document.addEventListener('DOMContentLoaded', function () {
+/**
+ * Script principal para el detector de phishing
+ * Maneja la interacción con la UI y comunicación con el backend
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    // Elementos del DOM
     const urlInput = document.getElementById('url-input');
     const analyzeBtn = document.getElementById('analyze-btn');
     const resultSection = document.getElementById('result-section');
     const exampleLinks = document.querySelectorAll('.example-link');
-
-    // Configura el endpoint de tu backend Flask
+    
+    // Configuración del backend
     const BACKEND_URL = 'http://localhost:5000/analyze';
 
-    // Manejar clic en botón de análisis
+    // Event Listeners
     analyzeBtn.addEventListener('click', analyzeUrl);
-
-    // Manejar Enter en el input
-    urlInput.addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            analyzeUrl();
-        }
-    });
-
-    // Manejar ejemplos
+    urlInput.addEventListener('keypress', (e) => e.key === 'Enter' && analyzeUrl());
+    
     exampleLinks.forEach(link => {
-        link.addEventListener('click', function (e) {
+        link.addEventListener('click', (e) => {
             e.preventDefault();
-            const url = this.getAttribute('data-url');
-            urlInput.value = url;
+            urlInput.value = link.getAttribute('data-url');
             analyzeUrl();
         });
     });
 
-    function analyzeUrl() {
+    /**
+     * Analiza la URL ingresada por el usuario
+     */
+    async function analyzeUrl() {
         const url = urlInput.value.trim();
-
+        
         if (!url) {
             showError('Por favor ingresa una URL');
             return;
         }
 
-        // Mostrar estado de carga
         showLoading();
-
-        // Enviar la URL al backend Flask
-        fetch(BACKEND_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ url: prepareUrl(url) })
-        })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => {
-                        throw new Error(err.error || 'Error en la respuesta del servidor');
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                displayResults(data);
-            })
-            .catch(error => {
-                console.error('Error completo:', error);
-                let errorMsg = error.message;
-                if (error.response) {  // Si hay respuesta del servidor
-                    errorMsg = error.response.data.error || errorMsg;
-                }
-                showError(`Error al analizar la URL: ${errorMsg}`);
+        
+        try {
+            const response = await fetch(BACKEND_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: normalizeUrl(url) })
             });
-    }
 
-    function prepareUrl(url) {
-        if (!url.startsWith('http://') && !url.startsWith('https://')) {
-            return 'http://' + url;
+            const data = await response.json();
+            
+            if (!response.ok || data.error) {
+                throw new Error(data.error || 'Error en el servidor');
+            }
+
+            displayResults(data);
+        } catch (error) {
+            console.error('Error completo:', error);
+            showError(`Error al analizar: ${error.message}`);
         }
-        return url;
     }
 
+    /**
+     * Normaliza la URL agregando protocolo si falta
+     * @param {string} url - URL a normalizar
+     * @returns {string} URL normalizada
+     */
+    function normalizeUrl(url) {
+        return !url.startsWith('http') ? `http://${url}` : url;
+    }
+
+    /**
+     * Muestra estado de carga durante el análisis
+     */
     function showLoading() {
         resultSection.innerHTML = `
             <div class="loading">
                 <div class="loading-spinner"></div>
-                <p style="margin-left: 15px;">Analizando URL...</p>
+                <p>Analizando URL...</p>
             </div>
         `;
         resultSection.className = 'result-section';
     }
 
+    /**
+     * Muestra los resultados del análisis
+     * @param {object} data - Datos de respuesta del backend
+     */
     function displayResults(data) {
-        const isPhishing = data.is_phishing;
-        resultSection.className = `result-section ${isPhishing ? 'result-malicious' : 'result-safe'}`;
+        const riskScore = calculateRiskScore(data);
+        const riskLevel = getRiskLevel(riskScore);
+        
+        resultSection.className = `result-section ${data.is_phishing ? 'result-malicious' : 'result-safe'}`;
+        resultSection.innerHTML = buildResultsHTML(data, riskScore, riskLevel);
 
-        const riskScore = Math.min(100, Math.round((data.malicious / data.total_engines) * 100)) || 0;
-        const riskLevel = riskScore >= 70 ? "Alto Riesgo" : riskScore >= 30 ? "Medio" : "Bajo";
+        if (data.model_prediction) {
+            renderFeatureImportanceChart(data.model_prediction.features_importance);
+        }
+    }
 
-        resultSection.innerHTML = `
+    /**
+     * Calcula el score de riesgo (0-100)
+     * @param {object} data - Datos del análisis
+     * @returns {number} Puntaje de riesgo
+     */
+    function calculateRiskScore(data) {
+        return Math.min(100, Math.round((data.malicious / data.total_engines) * 100)) || 0;
+    }
+
+    /**
+     * Determina el nivel de riesgo basado en el score
+     * @param {number} score - Puntaje de riesgo
+     * @returns {string} Nivel de riesgo (Alto/Medio/Bajo)
+     */
+    function getRiskLevel(score) {
+        return score >= 70 ? "Alto Riesgo" : score >= 30 ? "Medio" : "Bajo";
+    }
+
+    /**
+     * Genera el HTML para mostrar los resultados
+     */
+    function buildResultsHTML(data, riskScore, riskLevel) {
+        return `
         <div class="result-content">
             <h3>Resultados para: <span class="url-display">${data.url || 'URL desconocida'}</span></h3>
             
-            <!-- Contenedor flex para Score y Reputación -->
             <div class="top-metrics">
-                <!-- Score de Riesgo (Izquierda) -->
                 <div class="risk-score-section">
                     <h4>Score de Riesgo</h4>
                     <div class="risk-gauge" data-score="${riskScore}">
@@ -110,7 +131,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     <p class="risk-level ${riskLevel.toLowerCase().replace(' ', '-')}">${riskLevel}</p>
                 </div>
                 
-                <!-- Reputación en VirusTotal (Derecha) -->
                 <div class="vt-reputation">
                     <h4>Reputación en VirusTotal</h4>
                     <div class="engine-stats">
@@ -130,7 +150,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
             </div>
             
-            <!-- Metadata -->
             <div class="metadata-section">
                 <h4>Metadata</h4>
                 <div class="metadata-grid">
@@ -151,7 +170,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
             </div>
             
-            <!-- Sección de importancia de features (solo si hay datos del modelo) -->
             ${data.model_prediction ? `
             <div class="features-importance">
                 <h4>¿Qué factores afectaron el score?</h4>
@@ -159,36 +177,31 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
             ` : ''}
             
-            <!-- Conclusión -->
             <div class="conclusion-section">
                 <h4>Conclusión</h4>
-                <p class="conclusion ${isPhishing ? 'malicious' : 'safe'}">
-                    ${isPhishing ? '⚠️ URL POTENCIALMENTE MALICIOSA (Phishing)' : '✅ URL SEGURA'}
+                <p class="conclusion ${data.is_phishing ? 'malicious' : 'safe'}">
+                    ${data.is_phishing ? '⚠️ URL POTENCIALMENTE MALICIOSA' : '✅ URL SEGURA'}
                 </p>
             </div>
         </div>
         `;
-
-        // Inicializar gráfica si hay datos del modelo
-        if (data.model_prediction) {
-            renderFeatureImportanceChart(data.model_prediction.features_importance);
-        }
     }
 
+    /**
+     * Renderiza el gráfico de importancia de características
+     * @param {object} featuresData - Datos de características del modelo
+     */
     function renderFeatureImportanceChart(featuresData) {
         const ctx = document.getElementById('featuresChart');
-        if (!ctx) return;
-
-        const labels = Object.keys(featuresData);
-        const values = Object.values(featuresData);
+        if (!ctx || !featuresData) return;
 
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: labels,
+                labels: Object.keys(featuresData),
                 datasets: [{
                     label: 'Influencia en el riesgo',
-                    data: values,
+                    data: Object.values(featuresData),
                     backgroundColor: '#e74c3c',
                     borderColor: '#c0392b',
                     borderWidth: 1
@@ -197,30 +210,19 @@ document.addEventListener('DOMContentLoaded', function () {
             options: {
                 responsive: true,
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Importancia'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Características'
-                        }
-                    }
+                    y: { beginAtZero: true, title: { display: true, text: 'Importancia' } },
+                    x: { title: { display: true, text: 'Características' } }
                 }
             }
         });
     }
 
+    /**
+     * Muestra mensaje de error al usuario
+     * @param {string} message - Mensaje de error a mostrar
+     */
     function showError(message) {
         resultSection.className = 'result-section result-error';
-        resultSection.innerHTML = `
-            <div class="result-content">
-                <p style="color: #e74c3c;">${message}</p>
-            </div>
-        `;
+        resultSection.innerHTML = `<div class="result-content"><p>${message}</p></div>`;
     }
 });
