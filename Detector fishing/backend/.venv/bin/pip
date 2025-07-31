@@ -1,5 +1,5 @@
 #!/bin/sh
-'''exec' "/home/valen/Desktop/Detector fishing/backend/.venv/bin/python3" "$0" "$@"
+'''exec' "/home/valen/Desktop/Phishing-Catch/Detector fishing/backend/.venv/bin/python3" "$0" "$@"
 ' '''
 # -*- coding: utf-8 -*-
 import re
