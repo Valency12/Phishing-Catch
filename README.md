@@ -34,15 +34,18 @@ venv\Scripts\activate     # Windows
 pip install -r requirements.txt
 echo "VT_API_KEY=tu_clave" > .env
 flask run --host=0.0.0.0 --port=5000
+```
 
 ### 1. Configuración del Frontend
+```bash
 cd ../frontend
 npm install
 npm start
+```
 
-📡 Endpoints Clave
+### 📡 Endpoints Clave
+```bash
 POST /analyze
-
 Body: {"url": "https://ejemplo.com"}
 
 Response:
@@ -54,20 +57,24 @@ Response:
 
 GET /history - Historial de análisis
 POST /train - Reentrenar modelo (admin)
-
+```
 ### 1. Ejemplo de uso
+```bash
 curl -X POST http://localhost:5000/analyze \
   -H "Content-Type: application/json" \
   -d '{"url":"https://www.ejemplo-sospechoso.com"}'
+```
 
 ### 📊 Arquitectura del Sistema
+```bash
 Frontend (React) → Backend (Flask) → VirusTotal API
 ↓
 Modelo ML (RandomForest)
 ↓
 Base de Datos (SQLite/CSV)
+```
 
-🐛 Solución de Problemas
+### 🐛 Solución de Problemas
 Error "VT_API_KEY no configurada":
 
 Verificar archivo .env en /backend
@@ -78,7 +85,7 @@ Problemas CORS:
 Verificar configuración en backend/app.py
 Asegurar URLs permitidas
 
-🤝 Cómo Contribuir
-Reporta bugs en Issues
-Propone nuevas features
-Mejora la documentación
+### 🤝 Cómo Contribuir
+✔ Reporta bugs en Issues
+✔ Propone nuevas features
+✔ Mejora la documentación
