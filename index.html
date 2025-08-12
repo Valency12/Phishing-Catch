@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishDetect | Analizador de URLs sospechosas</title>
+    <meta name="description"
+        content="Herramienta para detectar sitios de phishing mediante análisis de reputación y aprendizaje automático">
+
+    <!-- Preconexión para fuentes y recursos externos -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Fuentes de Google -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <!-- Hojas de estilo -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Favicon -->
+    <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+    <!-- Contenedor principal -->
+    <div class="container" role="main">
+        <!-- Cabecera -->
+        <header class="app-header" aria-labelledby="main-title">
+            <h1 id="main-title">Detector de Phishing</h1>
+            <p class="subtitle">Analiza URLs sospechosas con tecnología de VirusTotal</p>
+        </header>
+
+        <!-- Contenido principal -->
+        <main class="main-content">
+            <!-- Sección de entrada (actualizada) -->
+            <section class="input-section" aria-labelledby="input-label">
+                <h2 id="input-label" class="visually-hidden">Analizar URL</h2>
+                <div class="input-group"> <!-- Eliminé el <form> -->
+                    <label for="url-input" class="input-label">URL a analizar</label>
+                    <div class="input-wrapper">
+                        <input type="url" id="url-input" placeholder="Ej: https://www.ejemplo.com" required>
+                        <button id="analyze-btn" class="primary-btn" disabled>Analizar</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección de resultados (actualizada) -->
+            <section id="result-section" class="result-section">
+                <div id="result-content" class="result-content">
+                </div>
+            </section>
+            <!-- Sección de ejemplos -->
+            <section class="examples-section" aria-labelledby="examples-title">
+                <h3 id="examples-title">Ejemplos para probar:</h3>
+                <ul class="examples-list">
+                    <li>
+                        <button class="example-link" data-url="https://www.google.com" aria-label="Probar URL legítima">
+                            <span class="example-type safe">Legítima:</span>
+                            https://www.google.com
+                        </button>
+                    </li>
+                    <li>
+                        <button class="example-link" data-url="http://faceb00k-login.verify-security.com"
+                            aria-label="Probar URL de phishing">
+                            <span class="example-type phishing">Phishing:</span>
+                            http://faceb00k-login.verify-security.com
+                        </button>
+                    </li>
+                    <li>
+                        <button class="example-link" data-url="http://paypal.com.security-update.xyz"
+                            aria-label="Probar URL sospechosa">
+                            <span class="example-type suspicious">Sospechosa:</span>
+                            http://paypal.com.security-update.xyz
+                        </button>
+                    </li>
+                </ul>
+            </section>
+        </main>
+
+        <!-- Pie de página -->
+        <footer class="app-footer">
+            <p>Usando la API de VirusTotal | <span id="current-year">2023</span></p>
+            <p class="disclaimer">Esta herramienta es solo para fines educativos</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Actualizar año automáticamente
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+</body>
+
+</html>
