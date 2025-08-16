@@ -15,6 +15,7 @@ import urllib.parse
 from tldextract import extract
 from data_preprocessing import download_and_process_data
 import socket
+import base64
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})  # Permite todos los orígenes
@@ -92,25 +93,28 @@ class PhishingDetector:
                     'country', 'domain_age', 'has_ssl'
                 ])
     
-    def scan_url(self, url):
-        """Versión simulada para desarrollo sin API real"""
-        print(f"Escaneando URL (simulado): {url}")
-        return {
-            'data': {
-                'attributes': {
-                    'last_analysis_stats': {
-                        'malicious': 5 if 'paypal' in url.lower() else 0,
-                        'suspicious': 2 if 'paypal' in url.lower() else 0,
-                        'harmless': 65
-                    },
-                    'url': url,
-                    'creation_date': time.time() - (365 * 2 * 86400),
-                    'last_https_certificate': {'valid': True},
-                    'country': 'US'
-                }
-            }
-        }
-    
+    def scan_url(self, url: str):
+        """
+        Escanea una URL real usando la API de VirusTotal.
+        Requiere self.api_key inicializada en el constructor.
+        """
+        if not self.api_key:
+            raise ValueError("⚠️ No se configuró una API Key de VirusTotal")
+
+        # Codificar la URL en base64 URL-safe (formato requerido por VirusTotal)
+        url_id = base64.urlsafe_b64encode(url.encode()).decode().strip("=")
+        
+        headers = {"x-apikey": self.api_key}
+        api_url = f"{self.base_url}/{url_id}"
+
+        try:
+            response = requests.get(api_url, headers=headers, timeout=10)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Error al consultar VirusTotal: {e}")
+            return None
+
     def analyze_report(self, report):
         if not report:
             return {"error": "No se pudo obtener reporte"}
@@ -227,7 +231,7 @@ class PhishingDetector:
             print(f"Error al guardar en CSV: {e}")
 
 # Configuración
-detector = PhishingDetector()
+detector = PhishingDetector(api_key="2efaf5c68368a30d86ef65cf13f434b48aa9bd5d79097670c0152240fcaa7ecd")
 
 @app.route('/analyze', methods=['POST'])
 def analyze():

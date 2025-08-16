@@ -63,3 +63,35 @@ timestamp,url,malicious,suspicious,total_engines,is_phishing,risk_level,country,
 2025-08-09T12:55:38.134598,http://faceb00k-login.verify-security.com,0,0,65,True,Bajo,US,730 días,True
 2025-08-09T12:55:49.289449,http://faceb00k-login.verify-security.com,0,0,65,True,Bajo,US,730 días,True
 2025-08-09T12:55:55.471978,http://secure-paypal.com,5,2,72,True,Bajo,US,730 días,True
+2025-08-16T11:10:05.648762,http://faceb00k-login.verify-security.com,0,0,65,True,Bajo,US,730 días,True
+2025-08-16T11:10:16.184235,http://secure-paypal.com,5,2,72,True,Bajo,US,730 días,True
+2025-08-16T11:10:20.772128,https://www.google.com/search?q=que+necesito+para+sacar+mi+licencia+en+san+luis+potosi+mexico+si+soy+extranjera&oq=que+necesito+para+sacar+mi+licencia+en+san+luis+potosi+mexico+si+soy+extranjera&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIHCAEQIRiPAjIHCAIQIRiPAjIHCAMQIRiPAtIBCTE1MzYxajBqN6gCALACAA&sourceid=chrome&ie=UTF-8,0,0,65,True,Bajo,US,730 días,True
+2025-08-16T11:10:24.470615,http://faceb00k-login.verify-security.com,0,0,65,True,Bajo,US,730 días,True
+2025-08-16T11:10:55.217681,http://appleid.verify.account.com,0,0,65,True,Bajo,US,730 días,True
+2025-08-16T11:11:00.224167,http://faceb00k-login.verify-security.com,0,0,65,True,Bajo,US,730 días,True
+2025-08-16T11:11:08.367717,http://bankofamerica.security-alert.xyz,0,0,65,True,Bajo,US,730 días,True
+2025-08-16T11:11:13.647140,https://www.google.com,0,0,65,True,Bajo,US,730 días,True
+2025-08-16T11:11:16.266000,http://faceb00k-login.verify-security.com,0,0,65,True,Bajo,US,730 días,True
+2025-08-16T11:11:18.695000,http://paypal.com.security-update.xyz,5,2,72,True,Bajo,US,730 días,True
+2025-08-16T11:11:20.985707,http://paypal.com.security-update.xyz,5,2,72,True,Bajo,US,730 días,True
+2025-08-16T11:11:23.152869,http://paypal.com.security-update.xyz,5,2,72,True,Bajo,US,730 días,True
+2025-08-16T11:11:24.888516,http://paypal.com.security-update.xyz,5,2,72,True,Bajo,US,730 días,True
+2025-08-16T11:11:26.378553,http://paypal.com.security-update.xyz,5,2,72,True,Bajo,US,730 días,True
+2025-08-16T11:20:41.203510,http://faceb00k-login.verify-security.com,0,0,65,True,Bajo,US,730 días,True
+2025-08-16T11:20:43.514022,http://paypal.com.security-update.xyz,5,2,72,True,Bajo,US,730 días,True
+2025-08-16T11:36:57.649240,http://faceb00k-login.verify-security.com/,1,0,97,True,Bajo,Desconocido,Desconocida,False
+2025-08-16T11:37:09.105523,http://faceb00k-login.verify-security.com/,1,0,97,True,Bajo,Desconocido,Desconocida,False
+2025-08-16T11:37:11.729414,http://paypal.com.security-update.xyz/,12,2,97,True,Bajo,Desconocido,Desconocida,False
+2025-08-16T11:37:13.254454,http://paypal.com.security-update.xyz/,12,2,97,True,Bajo,Desconocido,Desconocida,False
+2025-08-16T11:37:16.082400,http://paypal.com.security-update.xyz/,12,2,97,True,Bajo,Desconocido,Desconocida,False
+2025-08-16T11:37:21.313930,http://faceb00k-login.verify-security.com/,1,0,97,True,Bajo,Desconocido,Desconocida,False
+2025-08-16T11:38:18.477945,http://faceb00k-login.verify-security.com/,1,0,97,True,Bajo,Desconocido,Desconocida,False
+2025-08-16T12:55:13.283894,http://secure-paypal.com/,4,1,97,True,Bajo,Desconocido,Desconocida,False
+2025-08-16T12:55:43.583495,http://secure-paypal.com/,4,1,97,True,Bajo,Desconocido,Desconocida,False
+2025-08-16T12:55:48.059458,http://faceb00k-login.verify-security.com/,1,0,97,True,Bajo,Desconocido,Desconocida,False
+2025-08-16T12:57:51.173978,http://testphp.vulnweb.com/,0,1,97,True,Bajo,Desconocido,Desconocida,False
+2025-08-16T12:58:05.506935,http://www.eicar.org/download/eicar.com.txt,8,1,97,True,Bajo,Desconocido,Desconocida,False
+2025-08-16T12:58:24.093791,http://secure-paypal.com/,4,1,97,True,Bajo,Desconocido,Desconocida,False
+2025-08-16T13:06:48.181064,http://faceb00k-login.verify-security.com/,1,0,97,True,Bajo,Desconocido,Desconocida,False
+2025-08-16T13:06:53.487976,http://secure-paypal.com/,4,1,97,True,Bajo,Desconocido,Desconocida,False
+2025-08-16T13:28:05.436566,http://secure-paypal.com/,4,1,97,True,Bajo,Desconocido,Desconocida,False

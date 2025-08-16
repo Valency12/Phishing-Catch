@@ -1,13 +1,9 @@
-/**
- * Script principal para el detector de phishing
- * Maneja la interacción con la UI y comunicación con el backend
- */
 document.addEventListener('DOMContentLoaded', () => {
     // Elementos del DOM
     const urlInput = document.getElementById('url-input');
     const analyzeBtn = document.getElementById('analyze-btn');
     const resultSection = document.getElementById('result-section');
-    const resultContent = document.getElementById('result-content'); // 👈 Nuevo contenedor interno
+    const resultContent = document.getElementById('result-content');
     const exampleLinks = document.querySelectorAll('.example-link');
 
     // Configuración del backend
@@ -17,13 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
     resultSection.style.display = 'none';
 
     // Event Listeners
-    analyzeBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        analyzeUrl();
-    });
+    analyzeBtn.addEventListener('click', analyzeUrl); // ← pasamos la función directo
 
     urlInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') analyzeUrl();
+        if (e.key === 'Enter') analyzeUrl(e); // ← ahora sí le pasamos el evento
     });
 
     // Validación en tiempo real
@@ -36,87 +29,57 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             urlInput.value = link.getAttribute('data-url');
             analyzeBtn.disabled = false;
-            analyzeUrl();
+            analyzeUrl(); // ← sin evento; la función ya lo maneja
         });
     });
 
-    /**
-     * Analiza la URL ingresada por el usuario
-     */
-async function analyzeUrl() {
-    const url = urlInput.value.trim();
-    if (!url) {
-        showError('Por favor ingresa una URL');
-        return;
-    }
+    // ---------- FUNCIONES ----------
 
-    showLoading();
+    // Evento opcional: si viene, lo usamos; si no, no pasa nada
+    async function analyzeUrl(ev) {
+        if (ev && ev.preventDefault) ev.preventDefault();
 
-    // ----- SIMULACIÓN (COMENTA EL FETCH ORIGINAL) -----
-    const mockData = {
-        url: url, // Usa la URL ingresada por el usuario
-        is_phishing: true,
-        malicious: 5,
-        suspicious: 2,
-        total_engines: 70,
-        details: {
-            country: "US",
-            domain_age: "30 días",
-            has_ssl: false
-        },
-        model_prediction: {
-            risk_level: "Alto",
-            features_importance: {
-                "having_IP_Address": 0.8,
-                "URL_Length": 0.6,
-                "Shortining_Service": 0.9
+        const url = urlInput.value.trim();
+        if (!url) {
+            showError('Por favor ingresa una URL');
+            return;
+        }
+
+        showLoading();
+
+        try {
+            const normalizedUrl = normalizeUrl(url);
+            const response = await fetch(BACKEND_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: normalizedUrl })
+            });
+
+            // Intentamos parsear JSON siempre
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                const msg = (data && data.error) ? data.error : `Error del servidor: ${response.status}`;
+                showError(msg);
+                return;
             }
+
+            if (data.error) {
+                showError(data.error);
+                return;
+            }
+
+            displayResults(data);
+        } catch (error) {
+            console.error('Error al analizar URL:', error);
+            showError('No se pudo conectar con el servidor.');
         }
-    };
-
-    /*try {
-        console.log("Enviando solicitud a:", BACKEND_URL); // ✅ Verifica la URL
-        const response = await fetch(BACKEND_URL, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({ url: normalizeUrl(url) })
-        });
-
-        console.log("Respuesta recibida:", response); // ✅ Verifica la respuesta HTTP
-
-        if (!response.ok) {
-            let errorMsg = 'Error en el servidor';
-            try {
-                const errorData = await response.json();
-                errorMsg = errorData.error || errorMsg;
-            } catch {}
-            throw new Error(errorMsg);
-        }
-
-        const data = await response.json();
-        console.log("Datos del análisis:", data); // ✅ Verifica los datos recibidos
-
-        displayResults(data);
-
-    } catch (error) {
-        console.error('Error completo:', error);
-        showError(`Error al analizar: ${error.message}`);
-    }*/
-}
-
-    /**
-     * Normaliza la URL agregando protocolo si falta
-     */
-    function normalizeUrl(url) {
-        return !url.startsWith('http') ? `http://${url}` : url;
     }
 
-    /**
-     * Muestra estado de carga durante el análisis
-     */
+    function normalizeUrl(url) {
+        return /^(https?:)?\/\//i.test(url) ? url : `http://${url}`;
+    }
+
     function showLoading() {
         resultSection.style.display = 'block';
         resultSection.className = 'result-section';
@@ -129,24 +92,27 @@ async function analyzeUrl() {
         `;
     }
 
-    /**
-     * Muestra los resultados del análisis
-     */
     function displayResults(data) {
         console.log("Datos recibidos:", data);
+
         const riskScore = calculateRiskScore(data);
         const riskLevel = getRiskLevel(riskScore);
 
         resultSection.className = `result-section ${data.is_phishing ? 'result-malicious' : 'result-safe'} has-results`;
         resultContent.innerHTML = buildResultsHTML(data, riskScore, riskLevel);
 
-        if (data.model_prediction) {
-            renderFeatureImportanceChart(data.model_prediction.features_importance);
+        const fi = data?.model_prediction?.features_importance;
+        if (fi && Object.keys(fi).length) {
+            renderFeatureImportanceChart(fi);
         }
     }
 
+    // Evita Infinity cuando total_engines = 0
     function calculateRiskScore(data) {
-        return Math.min(100, Math.round((data.malicious / data.total_engines) * 100)) || 0;
+        const total = Number(data.total_engines) || 0;
+        const mal = Number(data.malicious) || 0;
+        if (total <= 0) return 0;
+        return Math.min(100, Math.round((mal / total) * 100));
     }
 
     function getRiskLevel(score) {
@@ -155,8 +121,9 @@ async function analyzeUrl() {
 
     function buildResultsHTML(data, riskScore, riskLevel) {
         const details = data.details || {};
-        const prediction = data.model_prediction || {};
-    
+        const hasFI = data?.model_prediction?.features_importance
+                      && Object.keys(data.model_prediction.features_importance).length;
+
         return `
         <div class="result-content-inner">
             <h3>Resultados para: <span class="url-display">${data.url || 'URL desconocida'}</span></h3>
@@ -210,12 +177,12 @@ async function analyzeUrl() {
                 </div>
             </div>
             
-            ${prediction ? `
+            ${hasFI ? `
             <div class="features-importance">
                 <h4>¿Qué factores afectaron el score?</h4>
                 <canvas id="featuresChart"></canvas>
             </div>
-            ` : ''}
+            ` : '' }
             
             <div class="conclusion-section">
                 <h4>Conclusión</h4>
